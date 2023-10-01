@@ -173,48 +173,22 @@ class TestSignupView(TestCase):
         self.assertIn("確認用パスワードが一致しません。", form.errors["password2"])
 
 
-# class TestSignupView(TestCase):
-#     def test_success_get(self):
+class TestLoginView(TestCase):
+    def test_success_get(self):
 
-#     def test_success_post(self):
+    def test_success_post(self):
 
-#     def test_failure_post_with_empty_form(self):
+    def test_failure_post_with_not_exists_user(self):
 
-#     def test_failure_post_with_empty_username(self):
-
-#     def test_failure_post_with_empty_email(self):
-
-#     def test_failure_post_with_empty_password(self):
-
-#     def test_failure_post_with_duplicated_user(self):
-
-#     def test_failure_post_with_invalid_email(self):
-
-#     def test_failure_post_with_too_short_password(self):
-
-#     def test_failure_post_with_password_similar_to_username(self):
-
-#     def test_failure_post_with_only_numbers_password(self):
-
-#     def test_failure_post_with_mismatch_password(self):
+    def test_failure_post_with_empty_password(self):
 
 
-# class TestLoginView(TestCase):
-#     def test_success_get(self):
-
-#     def test_success_post(self):
-
-#     def test_failure_post_with_not_exists_user(self):
-
-#     def test_failure_post_with_empty_password(self):
+class TestLogoutView(TestCase):
+    def test_success_post(self):
 
 
-# class TestLogoutView(TestCase):
-#     def test_success_post(self):
-
-
-# class TestUserProfileView(TestCase):
-#     def test_success_get(self):
+class TestUserProfileView(TestCase):
+    def test_success_get(self):
 
 
 # class TestUserProfileEditView(TestCase):
