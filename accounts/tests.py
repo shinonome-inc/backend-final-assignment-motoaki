@@ -3,8 +3,6 @@ from django.contrib.auth import SESSION_KEY, get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
-from mysite.settings import LOGIN_REDIRECT_URL
-
 User = get_user_model()
 
 
@@ -26,11 +24,11 @@ class TestSignupView(TestCase):
         }
 
         response = self.client.post(self.url, valid_data)
-
+        login_redirect_url = settings.LOGIN_REDIRECT_URL
         # 1の確認 = **tweets/homeにリダイレクトすること**
         self.assertRedirects(
             response,
-            reverse(LOGIN_REDIRECT_URL),
+            reverse(login_redirect_url),
             status_code=302,
             target_status_code=200,
         )
@@ -230,12 +228,13 @@ class TestLogoutView(TestCase):
     def setUp(self):
         self.url = reverse("accounts:logout")
         User.objects.create_user(username="testuser", password="testpass")
+        self.client.login(username="testuser", password="testpass")
 
     def test_success_post(self):
         response = self.client.post(self.url)
 
         self.assertRedirects(response, reverse(settings.LOGOUT_REDIRECT_URL), status_code=302, target_status_code=200)
-        # self.asserNotIn(SESSION_KEY, self.client.session)
+        self.assertNotIn(SESSION_KEY, self.client.session)
 
 
 # class TestUserProfileView(TestCase):
