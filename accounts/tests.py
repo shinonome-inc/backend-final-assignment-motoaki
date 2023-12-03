@@ -237,10 +237,15 @@ class TestLogoutView(TestCase):
         self.assertNotIn(SESSION_KEY, self.client.session)
 
 
-# class TestUserProfileView(TestCase):
-# def setUp(self):
+class TestUserProfileView(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="testuser", password="testpassword")
 
-# def test_success_get(self):
+    def test_success_get(self):
+        url = reverse("accounts:user_profile", kwargs={"username": self.user.username})
+        self.client.force_login(self.user)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
 
 
 # class TestUserProfileEditView(TestCase):
