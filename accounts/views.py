@@ -1,11 +1,13 @@
+from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model, login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, TemplateView
+
 from tweets.models import Tweet
+
 from .forms import SignupForm
-from django.conf import settings
 
 User = get_user_model()
 
