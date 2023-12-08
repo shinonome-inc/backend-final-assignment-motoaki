@@ -32,7 +32,6 @@ class TweetDeleteView(UserPassesTestMixin, DeleteView):
     model = Tweet
     template_name = "tweets/tweet_delete.html"
     success_url = reverse_lazy("tweets:home")
-    context_object_name = "tweets"
 
     def test_func(self):
         tweet = self.get_object()
