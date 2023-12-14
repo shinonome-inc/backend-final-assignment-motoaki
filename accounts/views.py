@@ -1,13 +1,16 @@
 from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model, login
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render
+from django.http import HttpResponseBadRequest
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.generic import CreateView, TemplateView
 
 from tweets.models import Tweet
 
 from .forms import SignupForm
+from .models import FriendShip
 
 User = get_user_model()
 
@@ -37,3 +40,40 @@ class UserProfileView(LoginRequiredMixin, TemplateView):
             self.template_name,
             {"user": user, "tweets": tweets},
         )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["user"] = self.user
+        follow_query = FriendShip.objects.filter(followee=self.user, follower=self.request.user)
+        context["is_following"] = follow_query.exists()
+        context["followings_count"] = FriendShip.objects.filter(follower=self.user).count()
+        context["followers_count"] = FriendShip.objects.filter(followee=self.user).count()
+        return context
+
+
+class FollowView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        followee_name = self.kwargs["username"]
+        followee = get_object_or_404(User, username=followee_name)
+
+        if request.user == followee:
+            return HttpResponseBadRequest("自分自身のユーザーをフォローすることはできません。")
+        elif FriendShip.objects.filter(follower=self.request.user, followee=followee).exists():
+            return HttpResponseBadRequest("既にフォローしています。")
+        else:
+            FriendShip.objects.get_or_create(follower=request.user, followee=followee)
+            return redirect("accounts:user_profile", username=followee_name)
+
+
+class UnFollowView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        followee_name = self.kwargs["username"]
+        followee = get_object_or_404(User, username=followee_name)
+
+        if followee == request.user:
+            return HttpResponseBadRequest("自分自身をアンフォローすることはできません")
+
+        else:
+            FriendShip.objects.filter(follower=request.user, followee=followee).delete()
+
+        return redirect("accounts:user_profile", username=followee_name)
