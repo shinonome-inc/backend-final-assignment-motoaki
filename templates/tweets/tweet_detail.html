@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<p><a href="{% url 'tweets:home' %}">戻る</a></p>
+<h1>ツイート詳細</h1>
+<p>{{ tweet.content }}</p>
+<p>作成者: {{ tweet.user.username }}</p>
+<p>作成日時: {{ tweet.created_at }}</p>
+{% endblock %}
