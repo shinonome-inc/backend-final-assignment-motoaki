@@ -2,10 +2,10 @@ from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model, login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseBadRequest
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import CreateView, TemplateView
+from django.views.generic import CreateView, TemplateView, ListView
 
 from tweets.models import Tweet
 
@@ -32,22 +32,15 @@ class SignupView(CreateView):
 class UserProfileView(LoginRequiredMixin, TemplateView):
     template_name = "accounts/profile.html"
 
-    def get(self, request, username):
+    def get_context_data(self, username, **kwargs):
         user = User.objects.get(username=username)
-        tweets = Tweet.objects.filter(user=user).order_by("-created_at")
-        return render(
-            request,
-            self.template_name,
-            {"user": user, "tweets": tweets},
-        )
-
-    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["user"] = self.user
-        follow_query = FriendShip.objects.filter(followee=self.user, follower=self.request.user)
+        context["user"] = user
+        context["tweets"] = Tweet.objects.filter(user=user).order_by("-created_at")
+        follow_query = FriendShip.objects.filter(followee=user, follower=self.request.user)
         context["is_following"] = follow_query.exists()
-        context["followings_count"] = FriendShip.objects.filter(follower=self.user).count()
-        context["followers_count"] = FriendShip.objects.filter(followee=self.user).count()
+        context["followings_count"] = FriendShip.objects.filter(follower=user).count()
+        context["followers_count"] = FriendShip.objects.filter(followee=user).count()
         return context
 
 
@@ -77,3 +70,25 @@ class UnFollowView(LoginRequiredMixin, View):
             FriendShip.objects.filter(follower=request.user, followee=followee).delete()
 
         return redirect("accounts:user_profile", username=followee_name)
+
+
+class FollowingListView(ListView):
+    model = FriendShip
+    template_name = 'accounts/followinglist.html'
+    context_object_name = 'following_list'
+
+    def get_queryset(self):
+        user = get_object_or_404(User, username=self.kwargs["username"])
+        following_users = FriendShip.objects.filter(follower=user).select_related('followee')
+        return following_users
+
+
+class FollowerListView(ListView):
+    model = FriendShip
+    template_name = 'accounts/followerlist.html'
+    context_object_name = 'follower_list'
+
+    def get_queryset(self):
+        user = get_object_or_404(User, username=self.kwargs["username"])
+        follower_users = FriendShip.objects.filter(followee=user).select_related('follower')
+        return follower_users

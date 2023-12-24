@@ -9,8 +9,7 @@
     {% for tweet in tweets %}
     <li>
         <p>{{ tweet.content }}</p>
-        <a href="{% url 'accounts:user_profile' username=tweet.user.username %}" class="btn">投稿者: {{ tweet.user.username
-            }}</a>
+        <a href="{% url 'accounts:user_profile' username=tweet.user %}" class="btn">投稿者: {{ tweet.user.username }}</a>
         <p>投稿日時: {{ tweet.created_at }}</p>
         <a href="{% url 'tweets:detail' pk=tweet.pk %}">詳細</a>
         <a href="{% url 'tweets:delete' pk=tweet.pk %}">削除</a>

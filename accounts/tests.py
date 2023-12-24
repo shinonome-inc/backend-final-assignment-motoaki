@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib.auth import SESSION_KEY, get_user_model
 from django.test import TestCase
 from django.urls import reverse
-
+from .models import FriendShip
 from tweets.models import Tweet
 
 User = get_user_model()
@@ -252,7 +252,12 @@ class TestUserProfileView(TestCase):
         user_tweets_in_context = response.context["tweets"]
         user_tweets_in_database = Tweet.objects.filter(user=self.user)
         self.assertQuerysetEqual(user_tweets_in_context, user_tweets_in_database)
-
+        user_followee_in_context = response.context["followings_count"]
+        user_followee_in_database = FriendShip.objects.filter(followee=self.user)
+        self.assertQuerysetEqual(user_followee_in_context, user_followee_in_database)
+        user_follower_in_context = response.context["followings_count"]
+        user_follower_in_database = FriendShip.objects.filter(followee=self.user)
+        self.assertQuerysetEqual(user_follower_in_context, user_follower_in_database)
 
 # class TestUserProfileEditView(TestCase):
 #     def test_success_get(self):
@@ -264,8 +269,22 @@ class TestUserProfileView(TestCase):
 #     def test_failure_post_with_incorrect_user(self):
 
 
-# class TestFollowView(TestCase):
-#     def test_success_post(self):
+class TestFollowView(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="testuser", password="testpassword")
+        self.follower = FriendShip.objects.create(user=self.user)
+        self.followee = FriendShip.objects.create(user=self.user)
+
+    def test_success_post(self):
+        url = reverse("accounts:user_profile", kwargs={"username": self.user.username})
+        self.client.force_login(self.user)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(
+            response,
+            reverse(settings.LOGIN_REDIRECT_URL),
+            status_code=200,
+        )
 
 #     def test_failure_post_with_not_exist_user(self):
 

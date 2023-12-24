@@ -19,6 +19,8 @@
 </form>
 {% endif %}
 {% endif %}
+<a href="{% url 'accounts:following_list' username=user.username %}" class="btn">FollowingList</a>
+<a href="{% url 'accounts:follower_list' username=user.username %}" class="btn">FollowerList</a>
 <h2>ツイート一覧</h2>
 <a>ユーザー:{{ user.get_username }}</a>
 <ul>
