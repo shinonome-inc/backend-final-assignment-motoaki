@@ -5,7 +5,7 @@ from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import CreateView, TemplateView, ListView
+from django.views.generic import CreateView, ListView, TemplateView
 
 from tweets.models import Tweet
 
@@ -55,7 +55,7 @@ class FollowView(LoginRequiredMixin, View):
             return HttpResponseBadRequest("既にフォローしています。")
         else:
             FriendShip.objects.get_or_create(follower=request.user, followee=followee)
-            return redirect("accounts:user_profile", username=followee_name)
+            return redirect("tweets:home")
 
 
 class UnFollowView(LoginRequiredMixin, View):
@@ -69,26 +69,26 @@ class UnFollowView(LoginRequiredMixin, View):
         else:
             FriendShip.objects.filter(follower=request.user, followee=followee).delete()
 
-        return redirect("accounts:user_profile", username=followee_name)
+        return redirect("tweets:home")
 
 
 class FollowingListView(ListView):
     model = FriendShip
-    template_name = 'accounts/followinglist.html'
-    context_object_name = 'following_list'
+    template_name = "accounts/followinglist.html"
+    context_object_name = "following_list"
 
     def get_queryset(self):
         user = get_object_or_404(User, username=self.kwargs["username"])
-        following_users = FriendShip.objects.filter(follower=user).select_related('followee')
+        following_users = FriendShip.objects.filter(follower=user).select_related("followee")
         return following_users
 
 
 class FollowerListView(ListView):
     model = FriendShip
-    template_name = 'accounts/followerlist.html'
-    context_object_name = 'follower_list'
+    template_name = "accounts/followerlist.html"
+    context_object_name = "follower_list"
 
     def get_queryset(self):
         user = get_object_or_404(User, username=self.kwargs["username"])
-        follower_users = FriendShip.objects.filter(followee=user).select_related('follower')
+        follower_users = FriendShip.objects.filter(followee=user).select_related("follower")
         return follower_users
