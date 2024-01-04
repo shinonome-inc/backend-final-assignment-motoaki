@@ -321,6 +321,7 @@ class TestUnfollowView(TestCase):
             status_code=302,
             target_status_code=200,
         )
+        self.assertFalse(FriendShip.objects.filter(follower=self.user).exists())
 
     def test_failure_post_with_not_exist_tweet(self):
         nonexistent_username = "nonexistentuser"
