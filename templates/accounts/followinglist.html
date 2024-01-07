@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Following List</h1>
+<ul>
+    {% for profile in following_list %}
+    <li>{{ profile.followee.username }}</li>
+    {% endfor %}
+</ul>
+<a href="{% url 'accounts:user_profile' username=user.username %}" class="btn">戻る</a>
+{% endblock %}
