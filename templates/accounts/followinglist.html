@@ -4,8 +4,8 @@
 <h1>Following List</h1>
 <ul>
     {% for profile in following_list %}
-    <li>{{ profile.followee.username }}</li>
+    <a href="{% url 'accounts:user_profile' username=profile.followee %}" class="btn">{{ profile.followee.username }}</a>
     {% endfor %}
 </ul>
-<a href="{% url 'accounts:user_profile' username=user.username %}" class="btn">戻る</a>
+<a href="{{request.META.HTTP_REFERER}}">戻る</a>
 {% endblock %}
