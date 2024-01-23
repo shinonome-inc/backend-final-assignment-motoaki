@@ -258,7 +258,7 @@ class TestUserProfileView(TestCase):
         user_followee_in_database = FriendShip.objects.filter(followee=self.user).count()
         self.assertEqual(user_followee_in_context, user_followee_in_database)
         user_follower_in_context = response.context["followers_count"]
-        user_follower_in_database = FriendShip.objects.filter(followee=self.user).count()
+        user_follower_in_database = FriendShip.objects.filter(follower=self.user).count()
         self.assertEqual(user_follower_in_context, user_follower_in_database)
 
 
