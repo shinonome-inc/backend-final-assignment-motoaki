@@ -1,13 +1,16 @@
 from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model, login
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render
+from django.http import HttpResponseBadRequest
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, TemplateView
+from django.views import View
+from django.views.generic import CreateView, ListView, TemplateView
 
 from tweets.models import Tweet
 
 from .forms import SignupForm
+from .models import FriendShip
 
 User = get_user_model()
 
@@ -29,11 +32,63 @@ class SignupView(CreateView):
 class UserProfileView(LoginRequiredMixin, TemplateView):
     template_name = "accounts/profile.html"
 
-    def get(self, request, username):
+    def get_context_data(self, username, **kwargs):
         user = User.objects.get(username=username)
-        tweets = Tweet.objects.filter(user=user).order_by("-created_at")
-        return render(
-            request,
-            self.template_name,
-            {"user": user, "tweets": tweets},
-        )
+        context = super().get_context_data(**kwargs)
+        context["user"] = user
+        context["tweets"] = Tweet.objects.filter(user=user).order_by("-created_at")
+        follow_query = FriendShip.objects.filter(followee=user, follower=self.request.user)
+        context["is_following"] = follow_query.exists()
+        context["followings_count"] = FriendShip.objects.filter(follower=user).count()
+        context["followers_count"] = FriendShip.objects.filter(followee=user).count()
+        return context
+
+
+class FollowView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        followee_name = self.kwargs["username"]
+        followee = get_object_or_404(User, username=followee_name)
+
+        if request.user == followee:
+            return HttpResponseBadRequest("自分自身のユーザーをフォローすることはできません。")
+        elif FriendShip.objects.filter(follower=self.request.user, followee=followee).exists():
+            return HttpResponseBadRequest("既にフォローしています。")
+        else:
+            FriendShip.objects.get_or_create(follower=request.user, followee=followee)
+            return redirect("tweets:home")
+
+
+class UnFollowView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        followee_name = self.kwargs["username"]
+        followee = get_object_or_404(User, username=followee_name)
+
+        if followee == request.user:
+            return HttpResponseBadRequest("自分自身をアンフォローすることはできません")
+
+        else:
+            FriendShip.objects.filter(follower=request.user, followee=followee).delete()
+
+        return redirect("tweets:home")
+
+
+class FollowingListView(ListView):
+    model = FriendShip
+    template_name = "accounts/followinglist.html"
+    context_object_name = "following_list"
+
+    def get_queryset(self):
+        user = get_object_or_404(User, username=self.kwargs["username"])
+        following_users = FriendShip.objects.filter(follower=user).select_related("followee")
+        return following_users
+
+
+class FollowerListView(ListView):
+    model = FriendShip
+    template_name = "accounts/followerlist.html"
+    context_object_name = "follower_list"
+
+    def get_queryset(self):
+        user = get_object_or_404(User, username=self.kwargs["username"])
+        follower_users = FriendShip.objects.filter(followee=user).select_related("follower")
+        return follower_users

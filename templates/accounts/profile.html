@@ -3,7 +3,25 @@
 {% block titile %}profile{% endblock %}
 
 {% block content %}
-<h1>プロフィール</h1>
+<h2>{{ user.get_username }}'s Profile</h2>
+<p>Followings: {{ followings_count }}</p>
+<p>Followers: {{ followers_count }}</p>
+{% if request.user != user %}
+{% if is_following %}
+<form method="post" action="{% url 'accounts:unfollow' username=user.username %}">
+    {% csrf_token %}
+    <button type="submit">Unfollow</button>
+</form>
+{% else %}
+<form method="post" action="{% url 'accounts:follow' username=user.username %}">
+    {% csrf_token %}
+    <button type="submit">Follow</button>
+</form>
+{% endif %}
+{% endif %}
+<a href="{% url 'accounts:following_list' username=user.username %}" class="btn">FollowingList</a>
+<a href="{% url 'accounts:follower_list' username=user.username %}" class="btn">FollowerList</a>
+<h2>ツイート一覧</h2>
 <a>ユーザー:{{ user.get_username }}</a>
 <ul>
     {% for tweet in tweets %}

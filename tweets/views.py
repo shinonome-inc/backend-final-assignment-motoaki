@@ -5,7 +5,7 @@ from django.views.generic import CreateView, DeleteView, DetailView, ListView
 from tweets.models import Tweet
 
 
-class HomeView(ListView, LoginRequiredMixin):
+class HomeView(LoginRequiredMixin, ListView):
     template_name = "tweets/home.html"
     model = Tweet
     context_object_name = "tweets"

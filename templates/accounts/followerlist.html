@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Follower List</h1>
+<ul>
+    {% for profile in follower_list %}
+    <a href="{% url 'accounts:user_profile' username=profile.follower %}" class="btn">{{ profile.follower.username }}</a>
+    {% endfor %}
+</ul>
+<a href="{{request.META.HTTP_REFERER}}">戻る</a>
+{% endblock %}
