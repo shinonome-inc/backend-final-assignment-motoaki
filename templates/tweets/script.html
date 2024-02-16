@@ -1,0 +1,49 @@
+<script>
+    const getCookie = (name) => {
+        if (document.cookie && document.cookie !== ''){
+            for (const cookie of document.cookie.split(';')){
+                const [key, value] = cookie.trim().split('=')
+                if (key === name) {
+                    return decode
+                }
+            }
+        }
+    }
+    const csrftoken = getCookie('csrftoken')
+
+    const like_list = document.getElementByClassName("like-tweet");
+
+    for (const like of like_list) {
+        const button = like.getElementsByClassName("like-button")[0]
+        const counter = like.getElementsByClassName("like-number")[0]
+        const tweet_pk = like.dataset.pk
+
+        like.addEventListener('click', () => {
+            const is_liked = button.dataset.is_liked
+            let url
+            if (is_liked == 'true') {
+                url = '/tweets/unlike/${tweet_pk}';
+            } else {
+                url = '/tweets/like/${tweet_pk}';
+            } 
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                },
+            })
+                .then((respose) => {
+                    if (is_liked == 'true'){
+                        button.dataset.is_liked = 'false'
+                        button.innerHTML = '<i class="fa-regular fa-hert" style="color:red></i>';
+                    } else {
+                        button.dataset.is_liked = 'false'
+                        button.innerHTML = '<i class="fa-solid fa-heart" style="color:red"></i>';
+                    }
+                    counter.textContent = 'いいね数: ${response.like_count}';
+                }).catch(error => {
+                    console.log(error);
+                });
+        });
+    }
+</script>

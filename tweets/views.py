@@ -1,8 +1,9 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.urls import reverse_lazy
-from django.views.generic import CreateView, DeleteView, DetailView, ListView
-
-from tweets.models import Tweet
+from django.urls import reverse_lazy, reverse
+from django.views.generic import CreateView, DeleteView, DetailView, ListView, View
+from django.shortcuts import get_object_or_404
+from tweets.models import Tweet, Like
+from django.http import JsonResponse
 
 
 class HomeView(LoginRequiredMixin, ListView):
@@ -36,3 +37,35 @@ class TweetDeleteView(UserPassesTestMixin, DeleteView):
     def test_func(self):
         tweet = self.get_object()
         return tweet.user == self.request.user
+
+
+class LikeView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        tweet_id = kwargs["pk"]
+        tweet = get_object_or_404(Tweet, pk=self.kwargs["pk"])
+        Like.objects.get_or_create(likeuser=request.user, likedtweet=tweet)
+        liked = True
+        unlike_url = reverse("tweets:unlike", kwargs={"pk": tweet_id})
+        context = {
+            "liked": liked,
+            "tweet_id": tweet_id,
+            "likes_count": tweet.likedtweet.count(),
+            "unlike_url": unlike_url,
+        }
+        return JsonResponse(context)
+
+
+class UnlikeView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        tweet_id = kwargs["pk"]
+        tweet = get_object_or_404(Tweet, pk=self.kwargs["pk"])
+        Like.objects.filter(likeuser=request.user, likedtweet=tweet).delete()
+        liked = False
+        like_url = reverse("tweets:like", kwargs={"pk": tweet_id})
+        context = {
+            "liked": liked,
+            "tweet_id": tweet_id,
+            "likes_count": tweet.likedtweet.count(),
+            "like_url": like_url,
+        }
+        return JsonResponse(context)

@@ -13,7 +13,12 @@
         <p>投稿日時: {{ tweet.created_at }}</p>
         <a href="{% url 'tweets:detail' pk=tweet.pk %}">詳細</a>
         <a href="{% url 'tweets:delete' pk=tweet.pk %}">削除</a>
+        {% include "tweets/like.html" %}
     </li>
     {% endfor %}
 </ul>
+{% endblock %}
+
+{% block extrajs %}
+{% include "tweets/script.html" %}
 {% endblock %}
