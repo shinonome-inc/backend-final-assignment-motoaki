@@ -1,1 +1,10 @@
-<dev class="heart"></dev>
+<html lang="ja">
+    <body>
+        {% if tweet.id in like_list %}
+        <button type="button" id="tweet-{{tweet.id}}" class = "btn btn-white" onclick="toggleLike(id)" data-url = "{%url 'tweets:unlike' tweet.id%}">いいね取り消し</button>
+        {% else %}
+        <button type="button" id="tweet-{{tweet.id}}" class = "btn btn-pink" onclick="toggleLike(id)" data-url = "{%url 'tweets:like' tweet.id%}">いいね</button>
+        {% endif %}
+        <span id="likes_count_{{tweet.id}}">{{ tweet.likedtweet.count }}いいね</span>
+    </body>
+</html>

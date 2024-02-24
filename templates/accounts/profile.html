@@ -28,6 +28,10 @@
     <li>
         <p>{{ tweet.content }}</p>
         <p>投稿日時: {{tweet.created_at}}</p>
+        {% include "tweets/like.html" %}
+        {% block extrajs %}
+        {% include "tweets/script.html" %}
+        {% endblock %}
     </li>
     {% endfor %}
 </ul>
