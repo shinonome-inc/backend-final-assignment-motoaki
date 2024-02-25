@@ -33,15 +33,11 @@ const changeStyle = (tweet_data, selector) => {
         selector.setAttribute('data-url', unlike_url);
         selector.innerHTML = "いいね取り消し";
         likes_count.textContent = tweet_data.likes_count + "いいね";
-        selector.classList.remove('btn-pink');
-        selector.classList.add('btn-white');
     } else {
         like_url = tweet_data.like_url;
         selector.setAttribute('data-url', like_url);
         selector.innerHTML = "いいね";
         likes_count.textContent = tweet_data.likes_count + "いいね";
-        selector.classList.remove('btn-white');
-        selector.classList.add('btn-pink');
     }
 }
 </script>
