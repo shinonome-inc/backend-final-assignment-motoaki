@@ -14,9 +14,6 @@
         <a href="{% url 'tweets:detail' pk=tweet.pk %}">詳細</a>
         <a href="{% url 'tweets:delete' pk=tweet.pk %}">削除</a>
         {% include "tweets/like.html" %}
-        {% block extrajs %}
-        {% include "tweets/script.html" %}
-        {% endblock %}
     </li>
     {% endfor %}
 </ul>
