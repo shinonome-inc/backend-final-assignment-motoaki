@@ -7,7 +7,4 @@
 <p>作成者: {{ tweet.user.username }}</p>
 <p>作成日時: {{ tweet.created_at }}</p>
 {% include "tweets/like.html" %}
-{% block extrajs %}
-{% include "tweets/script.html" %}
-{% endblock %}
 {% endblock %}

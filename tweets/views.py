@@ -33,6 +33,7 @@ class TweetCreateView(LoginRequiredMixin, CreateView):
 class TweetDetailView(LoginRequiredMixin, DetailView):
     model = Tweet
     template_name = "tweets/tweet_detail.html"
+    queryset = Tweet.objects.select_related("user").prefetch_related("likedtweet")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
