@@ -1,7 +1,5 @@
 {% extends "base.html" %}
 
-<title>{% block titile %}profile{% endblock %}</title>
-
 {% block content %}
 <h2>{{ user.get_username }}'s Profile</h2>
 <p>Followings: {{ followings_count }}</p>
