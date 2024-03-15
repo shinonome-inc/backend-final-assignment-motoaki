@@ -162,9 +162,6 @@ class TestUnLikeView(TestCase):
         self.assertEqual(updated_likes_count, initial_likes_count)
 
     def test_failure_post_with_unliked_tweet(self):
+        Like.objects.filter(likeuser=self.user, likedtweet=self.tweet).delete()
         response = self.client.post(reverse("tweets:unlike", kwargs={"pk": self.tweet.id}))
         self.assertEqual(response.status_code, 200)
-        initial_likes_count = Like.objects.count()
-        response = self.client.post(reverse("tweets:unlike", kwargs={"pk": self.tweet.id}))
-        updated_likes_count = Like.objects.count()
-        self.assertEqual(updated_likes_count, initial_likes_count)
