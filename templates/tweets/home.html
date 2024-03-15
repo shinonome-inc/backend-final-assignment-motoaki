@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% block title %}Home{% endblock %}
 {% block content %}
 <h1>homeです</h1>
 <a href="{% url 'accounts:user_profile' request.user %}" class="btn">プロフィール</a>
@@ -13,6 +12,7 @@
         <p>投稿日時: {{ tweet.created_at }}</p>
         <a href="{% url 'tweets:detail' pk=tweet.pk %}">詳細</a>
         <a href="{% url 'tweets:delete' pk=tweet.pk %}">削除</a>
+        {% include "tweets/like.html" %}
     </li>
     {% endfor %}
 </ul>

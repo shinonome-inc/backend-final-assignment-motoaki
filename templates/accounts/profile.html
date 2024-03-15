@@ -1,7 +1,5 @@
 {% extends "base.html" %}
 
-{% block titile %}profile{% endblock %}
-
 {% block content %}
 <h2>{{ user.get_username }}'s Profile</h2>
 <p>Followings: {{ followings_count }}</p>
@@ -28,6 +26,10 @@
     <li>
         <p>{{ tweet.content }}</p>
         <p>投稿日時: {{tweet.created_at}}</p>
+        {% include "tweets/like.html" %}
+        {% block extrajs %}
+        {% include "tweets/script.html" %}
+        {% endblock %}
     </li>
     {% endfor %}
 </ul>

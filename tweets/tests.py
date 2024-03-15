@@ -3,7 +3,7 @@ from django.urls import reverse
 
 from accounts.models import User
 
-from .models import Tweet
+from .models import Like, Tweet
 
 
 class TestHomeView(TestCase):
@@ -111,18 +111,57 @@ class TestTweetDeleteView(TestCase):
         self.assertEqual(Tweet.objects.get(pk=self.tweet.id).user, self.user)
 
 
-# class TestLikeView(TestCase):
-#     def test_success_post(self):
+class TestLikeView(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="testuser", password="testpassword")
+        self.tweet = Tweet.objects.create(user=self.user, content="Test tweet")
+        self.client.login(username="testuser", password="testpassword")
 
-#     def test_failure_post_with_not_exist_tweet(self):
+    def test_success_post(self):
+        initial_likes_count = Like.objects.count()
+        response = self.client.post(reverse("tweets:like", kwargs={"pk": self.tweet.id}))
+        self.assertEqual(response.status_code, 200)
+        updated_likes_count = Like.objects.count()
+        self.assertEqual(updated_likes_count, initial_likes_count + 1)
 
-#     def test_failure_post_with_liked_tweet(self):
+    def test_failure_post_with_not_exist_tweet(self):
+        initial_likes_count = Like.objects.count()
+        response = self.client.post(reverse("tweets:like", kwargs={"pk": 999}))
+        self.assertEqual(response.status_code, 404)
+        updated_likes_count = Like.objects.count()
+        self.assertEqual(updated_likes_count, initial_likes_count)
+
+    def test_failure_post_with_liked_tweet(self):
+        Like.objects.create(likeuser=self.user, likedtweet=self.tweet)
+        initial_likes_count = Like.objects.count()
+        response = self.client.post(reverse("tweets:like", kwargs={"pk": self.tweet.id}))
+        self.assertEqual(response.status_code, 200)
+        updated_likes_count = Like.objects.count()
+        self.assertEqual(updated_likes_count, initial_likes_count)
 
 
-# class TestUnLikeView(TestCase):
+class TestUnLikeView(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="testuser", password="testpassword")
+        self.tweet = Tweet.objects.create(user=self.user, content="Test tweet")
+        Like.objects.create(likeuser=self.user, likedtweet=self.tweet)
+        self.client.login(username="testuser", password="testpassword")
 
-#     def test_success_post(self):
+    def test_success_post(self):
+        initial_likes_count = Like.objects.count()
+        response = self.client.post(reverse("tweets:unlike", kwargs={"pk": self.tweet.id}))
+        self.assertEqual(response.status_code, 200)
+        updated_likes_count = Like.objects.count()
+        self.assertEqual(updated_likes_count, initial_likes_count - 1)
 
-#     def test_failure_post_with_not_exist_tweet(self):
+    def test_failure_post_with_not_exist_tweet(self):
+        initial_likes_count = Like.objects.count()
+        response = self.client.post(reverse("tweets:unlike", kwargs={"pk": 999}))
+        self.assertEqual(response.status_code, 404)
+        updated_likes_count = Like.objects.count()
+        self.assertEqual(updated_likes_count, initial_likes_count)
 
-#     def test_failure_post_with_unliked_tweet(self):
+    def test_failure_post_with_unliked_tweet(self):
+        Like.objects.filter(likeuser=self.user, likedtweet=self.tweet).delete()
+        response = self.client.post(reverse("tweets:unlike", kwargs={"pk": self.tweet.id}))
+        self.assertEqual(response.status_code, 200)
